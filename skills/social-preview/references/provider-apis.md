@@ -122,7 +122,7 @@ curl -s -X POST https://api.replicate.com/v1/predictions \
   -H "Authorization: Token $REPLICATE_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "version": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+    "version": "[SDXL_VERSION_HASH]",
     "input": {
       "prompt": "[YOUR_PROMPT]",
       "negative_prompt": "[NEGATIVE_PROMPT]",
@@ -132,6 +132,8 @@ curl -s -X POST https://api.replicate.com/v1/predictions \
     }
   }'
 ```
+
+> **Note**: Get the current SDXL version hash from [Replicate's SDXL page](https://replicate.com/stability-ai/sdxl). Version hashes change when models are updated.
 
 ### Polling for Result
 
@@ -257,12 +259,9 @@ export REPLICATE_API_TOKEN="r8_..."
 if [ -z "$OPENAI_API_KEY" ]; then
   echo "OPENAI_API_KEY not set"
 fi
-
-# Check key format (basic validation)
-if [[ ! "$OPENAI_API_KEY" =~ ^sk- ]]; then
-  echo "Invalid OPENAI_API_KEY format"
-fi
 ```
+
+> **Note**: OpenAI API keys may have different prefixes depending on key type and creation date. Validate by making a test API call rather than checking prefix format.
 
 ## Provider Comparison
 

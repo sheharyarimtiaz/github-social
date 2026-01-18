@@ -1,5 +1,9 @@
 # github-social
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://claude.ai/claude-code)
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](.claude-plugin/plugin.json)
+
 A Claude Code plugin that generates social preview images for GitHub repositories by analyzing project intent and purpose.
 
 ## Features
