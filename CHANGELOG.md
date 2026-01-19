@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-01-18
+
+### Added
+
+- **[social-preview]**: SVG generation as default provider (free, instant, editable)
+  - Claude generates clean SVG graphics directly - no external API needed
+  - Three SVG styles: `minimal` (default), `geometric`, `illustrated`
+  - Domain-specific color palettes (DevTools, AI/ML, Web, Data, Security, Infrastructure, Plugin)
+  - New reference file: `references/svg-templates.md` with complete templates by domain
+  - Example configuration: `examples/config-svg.md`
+- **[social-preview]**: Google Gemini (Nano Banana) image generation support
+  - Models: `gemini-2.5-flash-image` (fast), `gemini-3-pro-image-preview` (quality)
+  - Lower cost than DALL-E (~$0.039/image vs ~$0.08/image)
+  - Example configuration: `examples/config-gemini.md`
+- **[social-preview]**: Dark mode support with `<picture>` element for theme switching
+  - Config option: `dark_mode: false | true | both`
+  - Generates light and dark SVG variants when set to `both`
+- **[readme-enhance]**: Collapsible prompt display pattern
+  - Shows generation prompt in `<details>` section below infographic
+  - Follows NotebookLM-style documentation pattern
+- **[readme-enhance]**: SVG infographic generation as default
+  - New reference file: `references/svg-infographic-patterns.md` with layout templates
+
+### Changed
+
+- **[social-preview]**: Default provider changed from DALL-E to SVG
+- **[commands]**: Added `--provider` flag to override provider (svg, dalle-3, gemini, manual)
+- **[commands]**: Added `--dark-mode` flag for dark mode variant generation
+- Updated plugin description to reflect SVG-first approach
+- Updated plugin version to 0.5.0
+
 ## [0.4.0] - 2025-01-18
 
 ### Added
@@ -73,7 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configuration via `.claude/github-social.local.md` with YAML frontmatter
 - MIT License
 
-[Unreleased]: https://github.com/zircote/github-social/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/zircote/github-social/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/zircote/github-social/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/zircote/github-social/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/zircote/github-social/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/zircote/github-social/compare/v0.1.0...v0.2.0

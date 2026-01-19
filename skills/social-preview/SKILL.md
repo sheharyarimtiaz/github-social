@@ -1,6 +1,6 @@
 ---
 name: Social Preview Generator
-description: This skill should be used when the user asks to "generate social preview", "create social image", "github social preview", "repository preview image", "og image", "social media card", "create repo image", "github card image", or needs to create an image that captures a project's spirit and purpose for social media sharing. Analyzes project files to understand intent and generates optimized image prompts or images.
+description: This skill should be used when the user asks to "generate social preview", "create social image", "github social preview", "repository preview image", "og image", "social media card", "create repo image", "github card image", or needs to create an image that captures a project's spirit and purpose for social media sharing. Analyzes project files to understand intent and generates optimized SVG graphics or AI-generated images.
 ---
 
 # Social Preview Image Generator
@@ -9,9 +9,10 @@ Generate social preview images for GitHub repositories by analyzing project inte
 
 ## Overview
 
-This skill analyzes a project's codebase, documentation, and configuration to understand its purpose, then generates either:
-1. A detailed image prompt (default, no configuration needed)
-2. An actual image via configured provider (when settings exist)
+This skill analyzes a project's codebase, documentation, and configuration to understand its purpose, then generates:
+1. **SVG graphics** (default) - Clean, minimal vector graphics generated directly
+2. **AI-generated images** - Via DALL-E 3 or Gemini when configured
+3. **Text prompts** - For manual use with Midjourney or other tools
 
 ## GitHub Image Requirements
 
@@ -19,8 +20,8 @@ All generated images must meet GitHub's social preview requirements:
 - **Minimum**: 640x320 pixels
 - **Recommended**: 1280x640 pixels (2:1 aspect ratio)
 - **Maximum file size**: 1MB
-- **Formats**: PNG (preferred), JPG, GIF
-- **Default output**: `.github/social-preview.png`
+- **Formats**: SVG (default), PNG, JPG, GIF
+- **Default output**: `.github/social-preview.svg`
 
 ## Workflow
 
@@ -29,17 +30,22 @@ All generated images must meet GitHub's social preview requirements:
 Look for optional settings file at `.claude/github-social.local.md`.
 
 If file exists, parse YAML frontmatter for:
-- `provider`: Image generation provider (dalle-3, stable-diffusion, midjourney, manual)
-- `api_key_env`: Environment variable name containing API key
-- `style`: Visual style preference (abstract, illustrated, minimalist, custom)
+- `provider`: Image generation provider (svg, dalle-3, gemini, manual) - **default: svg**
+- `api_key_env`: Environment variable name containing API key (for dalle-3 or gemini)
+- `svg_style`: SVG style preference (minimal, geometric, illustrated) - **default: minimal**
+- `dark_mode`: Dark mode support (false, true, both) - **default: false**
 - `output_path`: Where to save the image
 - `dimensions`: Image dimensions (default: 1280x640)
 - `include_text`: Whether to include project name in image
-- `custom_style`: Custom style description if style is "custom"
 - `colors`: Color scheme preference (auto, dark, light, custom)
-- `upload_to_repo`: Whether to upload the image to the GitHub repository (true/false, default: false)
+- `upload_to_repo`: Whether to upload the image to the GitHub repository
 
-If no config exists, proceed with defaults (prompt-only output).
+**Command-line overrides** (highest priority):
+- `--provider=svg|dalle-3|gemini|manual`
+- `--dark-mode` (generates dark variant or both)
+- `--upload` (upload to repository)
+
+If no config exists, use defaults: `provider: svg`, `svg_style: minimal`.
 
 ### Step 2: Analyze Project
 
@@ -85,14 +91,175 @@ Based on analysis, design a visual concept that:
    - Powerful/Feature-rich: Layered elements, depth
 
 3. **Applies style preferences**
-   - **Abstract**: Geometric shapes, gradients, no literal representations
-   - **Illustrated**: Hand-drawn feel, character, warmth
-   - **Minimalist**: Project name prominent, subtle background elements
-   - **Custom**: Follow user's custom_style description
+   - **Minimal**: Clean lines, 3-5 shapes max, generous whitespace
+   - **Geometric**: 8-15 shapes, grid/flow arrangements, abstract metaphors
+   - **Illustrated**: Organic paths, hand-drawn aesthetic, warm colors
 
-### Step 4: Generate Image Prompt
+### Step 4: Generate Output Based on Provider
 
-Craft a detailed prompt optimized for image generation:
+Route to appropriate generation method based on provider setting.
+
+---
+
+#### Step 4a: Generate SVG (Default)
+
+When `provider: svg` or not configured, generate a clean SVG file directly.
+
+**SVG Design Principles**:
+- Simple geometric shapes (rectangles, circles, paths)
+- Clean sans-serif typography (system fonts)
+- Maximum 3-4 colors from domain palette
+- No raster images or complex filters
+- Viewbox: 0 0 1280 640
+- File size target: <50KB
+
+**SVG Template Structure**:
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640">
+  <defs>
+    <!-- Optional: gradients, patterns -->
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:[color1]"/>
+      <stop offset="100%" style="stop-color:[color2]"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#bg-gradient)"/>
+
+  <!-- Domain-specific visual elements (3-15 shapes based on svg_style) -->
+
+  <!-- Project name (if include_text: true) -->
+  <text x="640" y="340"
+        font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif"
+        font-size="72" font-weight="700"
+        text-anchor="middle" fill="[text-color]">
+    [PROJECT-NAME]
+  </text>
+
+  <!-- Optional tagline -->
+  <text x="640" y="400"
+        font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+        font-size="24" font-weight="400"
+        text-anchor="middle" fill="[secondary-text-color]" opacity="0.8">
+    [tagline]
+  </text>
+</svg>
+```
+
+**SVG Style Guidelines**:
+
+**Minimal** (default):
+- 3-5 simple shapes maximum
+- Single gradient or solid background
+- Project name as focal point
+- Generous whitespace (60%+ empty space)
+- Subtle accent shapes
+
+**Geometric**:
+- 8-15 geometric shapes
+- Grid or flow-based arrangement
+- Represents domain metaphor abstractly
+- More visual complexity, balanced composition
+
+**Illustrated**:
+- Organic SVG paths with curves
+- Hand-drawn aesthetic using stroke variations
+- Warm, approachable color palette
+- Textured appearance via path styling
+
+**Domain-Specific SVG Patterns**:
+
+See `references/svg-templates.md` for complete templates by domain.
+
+**Dark Mode Support**:
+
+If `dark_mode: true` or `dark_mode: both`:
+- Invert background: light (#f8fafc) ↔ dark (#0f172a)
+- Adjust text colors for contrast
+- Adjust accent colors for dark backgrounds
+- If `both`: save as `[name].svg` and `[name]-dark.svg`
+
+**Save SVG**:
+1. Write SVG content to `output_path` (default: `.github/social-preview.svg`)
+2. Verify file size < 50KB (warn if larger)
+3. If `dark_mode: both`, generate and save dark variant
+
+---
+
+#### Step 4b: Generate with DALL-E 3
+
+When `provider: dalle-3`:
+
+1. **Verify API key**: Check `$OPENAI_API_KEY` or configured `api_key_env`
+
+2. **Craft optimized prompt** (see Step 4d for prompt structure)
+
+3. **Call DALL-E API**:
+```bash
+curl -s https://api.openai.com/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "model": "dall-e-3",
+    "prompt": "[generated prompt]",
+    "n": 1,
+    "size": "1792x1024",
+    "quality": "hd",
+    "response_format": "b64_json"
+  }'
+```
+
+4. **Process response**:
+```bash
+# Decode base64 and resize to 1280x640
+echo "[base64_data]" | base64 -d > temp_image.png
+convert temp_image.png -resize 1280x640! -quality 90 .github/social-preview.png
+```
+
+---
+
+#### Step 4c: Generate with Gemini (Nano Banana)
+
+When `provider: gemini`:
+
+1. **Verify API key**: Check `$GEMINI_API_KEY` or configured `api_key_env`
+
+2. **Select model**:
+   - `gemini-2.5-flash-image` - Fast, efficient (default)
+   - `gemini-3-pro-image-preview` - Higher quality with reasoning, better text rendering
+
+3. **Craft optimized prompt** (see Step 4d for prompt structure)
+
+4. **Call Gemini API**:
+```bash
+curl -X POST \
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{
+      "parts": [{"text": "[generated prompt]"}]
+    }],
+    "generationConfig": {
+      "responseModalities": ["IMAGE"],
+      "imageConfig": {
+        "aspectRatio": "16:9"
+      }
+    }
+  }'
+```
+
+5. **Process response**:
+   - Extract image data from response
+   - Save to output path
+   - Resize if needed to 1280x640
+
+---
+
+#### Step 4d: Generate Text Prompt (Manual)
+
+When `provider: manual` or API generation fails:
 
 **Prompt structure**:
 ```
@@ -117,59 +284,26 @@ Negative prompt: text, watermarks, realistic photos, cluttered, busy patterns
 ... with stylized text "PROJECT-NAME" integrated into design ...
 ```
 
-### Step 5: Generate or Output
+### Step 5: Verify Output
 
-**If provider is configured and API key available**:
+**For SVG output**:
+1. Verify valid XML structure
+2. Check file size < 50KB (warn if 50-100KB, error if >100KB)
+3. Verify viewBox is 1280x640
 
-For **DALL-E 3**:
-```bash
-curl -s https://api.openai.com/v1/images/generations \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -d '{
-    "model": "dall-e-3",
-    "prompt": "[generated prompt]",
-    "n": 1,
-    "size": "1792x1024",
-    "quality": "hd",
-    "response_format": "b64_json"
-  }'
-```
-
-Then decode and resize to 1280x640:
-```bash
-echo "[base64_data]" | base64 -d > temp_image.png
-# Use ImageMagick or similar to resize
-convert temp_image.png -resize 1280x640! -quality 90 .github/social-preview.png
-```
-
-For **Stable Diffusion** (local or API):
-Construct appropriate API call based on user's SD setup.
-
-For **manual/midjourney**:
-Output the optimized prompt for user to copy.
-
-**If no provider configured (default)**:
-Output the detailed prompt with instructions:
-1. Display the generated prompt
-2. Explain it's optimized for DALL-E 3 but works with other tools
-3. Suggest using the `/social-preview:setup` command for automated generation
-4. Note the GitHub requirements (1280x640, <1MB)
-
-### Step 6: Verify Output
-
-If image was generated:
+**For image output (PNG/JPG)**:
 1. Verify file exists at output path
 2. Check dimensions meet requirements (≥640x320)
 3. Check file size is under 1MB
-4. Report success with file location
+4. If exceeds 1MB, compress progressively
 
-If image exceeds 1MB:
-- Compress with quality reduction
-- Convert to optimized PNG
-- Report final size
+**Report success with**:
+- File location
+- File size
+- Dimensions
+- Provider used
 
-### Step 7: Upload to Repository (Optional)
+### Step 6: Upload to Repository (Optional)
 
 If `upload_to_repo: true` is configured (or `--upload` flag provided):
 
@@ -178,11 +312,11 @@ If `upload_to_repo: true` is configured (or `--upload` flag provided):
    - Determine current branch with `git branch --show-current`
 
 2. **Prepare upload**:
-   - Read the generated image file
+   - Read the generated file
    - Encode content as base64 for GitHub API
 
 3. **Check for existing file**:
-   - Use GitHub API to check if `.github/social-preview.png` exists
+   - Use GitHub API to check if output file exists
    - If exists, retrieve the SHA for update operation
 
 4. **Upload via GitHub MCP tool**:
@@ -190,8 +324,8 @@ If `upload_to_repo: true` is configured (or `--upload` flag provided):
    ```yaml
    owner: [detected owner]
    repo: [detected repo]
-   path: .github/social-preview.png
-   content: [base64 encoded image]
+   path: [output_path]
+   content: [base64 encoded content]
    message: "chore: update social preview image"
    branch: [current or default branch]
    sha: [existing file SHA if updating]
@@ -201,108 +335,69 @@ If `upload_to_repo: true` is configured (or `--upload` flag provided):
    - Confirm successful upload with commit URL
    - Provide GitHub settings link for activating the social preview
 
-**Upload error handling**:
-- **Authentication failed**: Ensure `gh` CLI is authenticated or GITHUB_TOKEN is set
-- **Permission denied**: User may not have push access to the repository
-- **Branch protection**: May need to create PR instead of direct push
-
-**Note**: Uploading commits the image to the repository. To set it as the actual social preview, users must still:
+**Note**: To set as actual social preview, users must:
 1. Go to repository Settings → General
 2. Scroll to "Social preview"
 3. Click "Edit" and select the uploaded image
 
-## Style Guide for Prompts
-
-### Abstract Style
-- Geometric shapes: circles, hexagons, flowing lines
-- Gradients: smooth color transitions
-- No literal objects or people
-- Tech-inspired patterns: grids, circuits, nodes
-- Example: "Abstract geometric composition with flowing gradient shapes..."
-
-### Illustrated Style
-- Hand-drawn aesthetic
-- Warm, approachable feel
-- Can include metaphorical imagery
-- Textured, organic lines
-- Example: "Hand-illustrated style artwork depicting..."
-
-### Minimalist Style
-- Maximum whitespace
-- Single focal element
-- Project name as primary element
-- Subtle background texture or gradient
-- Example: "Minimalist design with centered typography..."
-
 ## Color Palettes by Domain
 
-**DevTools/CLI**: Dark backgrounds, terminal green, cyan accents
-**AI/ML**: Purple gradients, neural blue, data visualization colors
-**Web/Frontend**: Modern gradients, brand-friendly blues and purples
-**Data/Analytics**: Chart colors, professional blues, accent oranges
-**Security**: Deep blues, warning yellows, trust greens
-**Infrastructure**: Cloud whites, server grays, network blues
+**DevTools/CLI**:
+- Background: #0f172a (slate-900), #1e293b (slate-800)
+- Accent: #06b6d4 (cyan-500), #22d3ee (cyan-400)
+- Text: #f8fafc (slate-50)
+
+**AI/ML**:
+- Background: #1e1b4b (indigo-950), #312e81 (indigo-900)
+- Accent: #8b5cf6 (violet-500), #a78bfa (violet-400)
+- Text: #f8fafc (slate-50)
+
+**Web/Frontend**:
+- Background: #0c4a6e (sky-900), #075985 (sky-800)
+- Accent: #3b82f6 (blue-500), #60a5fa (blue-400)
+- Text: #f8fafc (slate-50)
+
+**Data/Analytics**:
+- Background: #1e3a5f, #0f172a
+- Accent: #f59e0b (amber-500), #3b82f6 (blue-500)
+- Text: #f8fafc (slate-50)
+
+**Security**:
+- Background: #0f172a (slate-900), #1e293b (slate-800)
+- Accent: #22c55e (green-500), #eab308 (yellow-500)
+- Text: #f8fafc (slate-50)
+
+**Infrastructure**:
+- Background: #1e293b (slate-800), #334155 (slate-700)
+- Accent: #06b6d4 (cyan-500), #64748b (slate-500)
+- Text: #f8fafc (slate-50)
 
 ## Error Handling
 
 **No README or project files found**:
 Ask user to describe the project purpose, then proceed with that information.
 
-**API key not found**:
-Fall back to prompt-only output with instructions.
+**API key not found** (for dalle-3 or gemini):
+Fall back to SVG generation or prompt-only output with instructions.
 
 **Image generation fails**:
 1. Report the error
-2. Output the prompt for manual use
-3. Suggest checking API key or trying different provider
+2. Fall back to SVG generation
+3. Or output the prompt for manual use
 
-**File too large after generation**:
-Apply progressive compression until under 1MB.
-
-## Examples
-
-### Example 1: CLI Tool Project
-
-**Project analysis**:
-- Name: "quicksort"
-- Purpose: Fast file sorting utility
-- Domain: DevTools/CLI
-- Spirit: Speed, efficiency, simplicity
-
-**Generated prompt**:
-```
-Abstract geometric composition with terminal-inspired aesthetics, flowing lines
-suggesting rapid data movement, interconnected sorting nodes in a dynamic arrangement,
-dark slate background with electric blue and cyan gradient accents, modern minimalist
-tech style, centered composition with subtle depth, 1280x640, high contrast
-
-Negative: text, watermarks, realistic elements, cluttered design
-```
-
-### Example 2: Machine Learning Library
-
-**Project analysis**:
-- Name: "neuralkit"
-- Purpose: Neural network toolkit for researchers
-- Domain: AI/ML
-- Spirit: Powerful, accessible, innovative
-
-**Generated prompt**:
-```
-Futuristic abstract visualization of neural network architecture, interconnected
-nodes with glowing synaptic connections, deep purple to blue gradient background
-with bright accent nodes, layered depth creating sense of complexity and power,
-scientific yet approachable aesthetic, 1280x640, ethereal glow effects
-
-Negative: human faces, realistic brains, cluttered, dated graphics
-```
+**SVG file too large** (>100KB):
+1. Simplify shapes (reduce complexity)
+2. Remove unnecessary elements
+3. Warn user and suggest switching to minimal style
 
 ## Additional Resources
 
 ### Reference Files
+- **`references/svg-templates.md`** - Complete SVG templates by domain
 - **`references/prompt-patterns.md`** - Detailed prompt patterns by domain
 - **`references/provider-apis.md`** - API documentation for supported providers
 
 ### Example Files
+- **`examples/config-svg.md`** - Example SVG configuration (default)
 - **`examples/config-dalle.md`** - Example DALL-E configuration
-- **`examples/config-manual.md`** - Example manual/prompt-only configuration
+- **`examples/config-gemini.md`** - Example Gemini configuration

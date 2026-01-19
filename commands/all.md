@@ -1,8 +1,8 @@
 ---
 name: all
 description: Run all github-social skills in sequence - metadata, social preview, and README enhancement
-argument-hint: "[--apply] [--dry-run] [--skip-badges] [--skip-infographic]"
-allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "MCPSearch"]
+argument-hint: "[--apply] [--dry-run] [--provider svg|dalle-3|gemini|manual] [--skip-badges] [--skip-infographic] [--dark-mode]"
+allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "MCPSearch", "mcp__github__create_or_update_file"]
 ---
 
 # Complete GitHub Social Enhancement
@@ -10,7 +10,7 @@ allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "MCPSearch"]
 Run all github-social skills in sequence to fully optimize a repository's presentation:
 
 1. **repo-metadata**: Generate optimized description and topics
-2. **social-preview**: Generate social preview image
+2. **social-preview**: Generate social preview image (SVG by default)
 3. **readme-enhance**: Add badges and infographic to README
 
 ## Execution Steps
@@ -20,18 +20,24 @@ Run all github-social skills in sequence to fully optimize a repository's presen
 Handle optional flags:
 - `--apply`: Apply all changes (update GitHub metadata, modify README, upload images)
 - `--dry-run`: Preview all changes without applying any
+- `--provider [value]`: Override image provider for both social preview and infographic (svg, dalle-3, gemini)
 - `--skip-badges`: Skip badge generation in README enhancement
 - `--skip-infographic`: Skip infographic generation
+- `--dark-mode`: Generate dark mode variants for images
 
-Default behavior: Generate and preview, prompt before applying.
+Default behavior: Generate SVG images, preview changes, prompt before applying.
 
 ### 2. Load Configuration
 
 Read `.claude/github-social.local.md` for all skill settings:
-- Social preview provider and style
+- `provider`: svg (default), dalle-3, gemini, manual
+- `svg_style`: minimal (default), geometric, illustrated
+- `dark_mode`: false (default), true, both
 - Badge style preferences
 - Infographic style preferences
 - Upload settings
+
+Command-line flags override configuration.
 
 ### 3. Analyze Project (Shared)
 
@@ -42,6 +48,7 @@ Perform comprehensive project analysis once, reuse across all skills:
 3. Identify:
    - Project name and version
    - Purpose and key features
+   - Domain (DevTools, AI, Web, Data, Security, Infrastructure, Plugin)
    - Primary language and frameworks
    - CI/CD configuration
    - License type
@@ -60,21 +67,29 @@ Output preview of changes.
 
 #### Step 4b: Social Preview Image
 
-Generate social preview:
-- Create image prompt based on project analysis
-- If provider configured, generate actual image
-- Save to configured output path (default: `.github/social-preview.png`)
+Generate social preview based on provider:
 
-Output the image prompt (and image location if generated).
+**SVG (default)**:
+- Generate clean SVG using domain templates
+- Save to `.github/social-preview.svg`
+- If `--dark-mode`, generate dark variant
+
+**DALL-E 3 / Gemini**:
+- Generate optimized image prompt
+- Call API and save PNG
+- Save to `.github/social-preview.png`
+
+Output the generated file location (or prompt if manual).
 
 #### Step 4c: README Enhancement
 
 Unless `--skip-badges` and `--skip-infographic` both set:
 - Generate shields.io badges (unless `--skip-badges`)
-- Generate infographic prompt (unless `--skip-infographic`)
+- Generate infographic SVG/image (unless `--skip-infographic`)
+- Add collapsible prompt display section
 - Prepare README.md updates
 
-Output badge set and infographic prompt.
+Output badge set and infographic location.
 
 ### 5. Present Summary
 
@@ -88,13 +103,15 @@ Display complete summary:
 - Topics: topic-1, topic-2, topic-3, ...
 
 ### Social Preview
-- Image prompt generated
-- Output: .github/social-preview.png
-- [Generated/Pending generation]
+- Provider: svg (default)
+- Output: .github/social-preview.svg
+- Size: X KB
+- [Generated/Pending]
 
 ### README Enhancement
 - Badges: X badges generated
-- Infographic: Prompt ready
+- Infographic: .github/readme-infographic.svg
+- Dark mode: [yes/no]
 - README changes: [Preview/Applied]
 
 ### Next Steps
@@ -111,22 +128,31 @@ If `--apply` flag or user confirms:
    gh repo edit --add-topic topic-1 --add-topic topic-2 ...
    ```
 
-2. **Generate and upload social preview** (if provider configured):
-   - Generate image via configured provider
+2. **Save/upload social preview**:
+   - Write SVG/PNG to output path
    - Upload to repository if `upload_to_repo: true`
 
 3. **Update README.md**:
    - Insert/update badge section
-   - Add infographic placeholder/image
+   - Add infographic with prompt display section
+   - If dark mode, use `<picture>` element for theme switching
 
 4. **Report results**:
    - Confirm each step completed
    - Provide GitHub settings links for manual steps
 
+## Provider Comparison
+
+| Provider | Social Preview | Infographic | Cost | Speed |
+|----------|---------------|-------------|------|-------|
+| **svg** (default) | SVG file | SVG file | Free | Instant |
+| **dalle-3** | PNG image | PNG image | ~$0.16 | 10-30s |
+| **gemini** | PNG image | PNG image | ~$0.08 | 6-20s |
+
 ## Example Usage
 
 ```bash
-# Preview all enhancements
+# Preview all enhancements (SVG default)
 /github-social:all
 
 # Apply all changes automatically
@@ -134,6 +160,15 @@ If `--apply` flag or user confirms:
 
 # Dry run to see what would change
 /github-social:all --dry-run
+
+# Use DALL-E for artistic images
+/github-social:all --provider=dalle-3 --apply
+
+# Use Gemini for image generation
+/github-social:all --provider=gemini --apply
+
+# Generate with dark mode support
+/github-social:all --dark-mode --apply
 
 # Skip certain features
 /github-social:all --apply --skip-infographic
@@ -143,10 +178,11 @@ If `--apply` flag or user confirms:
 ## Tips
 
 - Run without `--apply` first to review changes
+- SVG generation is free and instant (recommended default)
 - Ensure `gh` CLI is authenticated for metadata updates
-- Configure `.claude/github-social.local.md` for image generation
+- Configure `.claude/github-social.local.md` for custom settings
 - Social preview requires manual GitHub settings update after upload
-- Use `--dry-run` to safely preview all changes
+- Use `--dark-mode` for repositories viewed in both themes
 
 ## Related Commands
 

@@ -2,6 +2,122 @@
 
 Reference documentation for supported image generation providers.
 
+## SVG Generation (Default)
+
+SVG is the default provider. Claude generates clean vector graphics directly - no external API needed.
+
+### Requirements
+- None (built into Claude)
+
+### Output Format
+- Format: SVG (Scalable Vector Graphics)
+- Dimensions: 1280x640 viewBox
+- File size: Typically 10-50KB
+
+### SVG Styles
+
+| Style | Description | Shapes | Best For |
+|-------|-------------|--------|----------|
+| `minimal` | Clean, focused | 3-5 | Professional, understated |
+| `geometric` | Complex patterns | 8-15 | Technical projects |
+| `illustrated` | Organic, warm | Varies | Approachable projects |
+
+### Template Structure
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <!-- Domain-specific shapes -->
+  <text x="640" y="340" text-anchor="middle" fill="#f8fafc"
+        font-family="-apple-system, sans-serif" font-size="72" font-weight="700">
+    Project Name
+  </text>
+</svg>
+```
+
+### Benefits
+- **Free**: No API costs
+- **Instant**: No network latency
+- **Editable**: Text-based, easily modified
+- **Small**: 10-50KB file size
+- **Consistent**: Predictable results
+
+---
+
+## Gemini (Google)
+
+Google's Gemini API provides native image generation (codename: Nano Banana).
+
+### Requirements
+- Environment variable: `GEMINI_API_KEY`
+- API endpoint: `https://generativelanguage.googleapis.com/v1beta/models/`
+
+### Models
+
+| Model | Description | Best For |
+|-------|-------------|----------|
+| `gemini-2.5-flash-image` | Fast, efficient | High-volume, quick iterations |
+| `gemini-3-pro-image-preview` | Higher quality with reasoning | Final production, text rendering |
+
+### API Call
+
+```bash
+curl -X POST \
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{
+      "parts": [{"text": "[YOUR_PROMPT]"}]
+    }],
+    "generationConfig": {
+      "responseModalities": ["IMAGE"],
+      "imageConfig": {
+        "aspectRatio": "16:9"
+      }
+    }
+  }'
+```
+
+### Response Processing
+
+```bash
+# Extract base64 image data from response
+IMAGE_DATA=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].inlineData.data')
+
+# Decode and save
+echo "$IMAGE_DATA" | base64 -d > .github/social-preview.png
+
+# Resize to exact GitHub dimensions if needed
+convert .github/social-preview.png -resize 1280x640! .github/social-preview.png
+```
+
+### Error Handling
+
+Common errors:
+- `401`: Invalid API key
+- `429`: Rate limit exceeded (free tier has limits)
+- `400`: Invalid prompt or unsupported content
+
+### Cost
+- **gemini-2.5-flash-image**: ~$0.039 per image (1290 output tokens at $30/1M tokens)
+- Free tier available with rate limits
+
+### Getting an API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Create or select a project
+3. Generate an API key
+4. Set environment variable: `export GEMINI_API_KEY="your-key"`
+
+---
+
 ## DALL-E 3 (OpenAI)
 
 ### Requirements
@@ -267,7 +383,9 @@ fi
 
 | Provider | Quality | Speed | Cost | Setup |
 |----------|---------|-------|------|-------|
-| DALL-E 3 | Excellent | Fast | ~$0.08/img | API key only |
+| **SVG** (default) | Professional | Instant | Free | None |
+| **Gemini** | Very Good | Fast | ~$0.039/img | API key only |
+| **DALL-E 3** | Excellent | Fast | ~$0.08/img | API key only |
 | SDXL (local) | Very Good | Varies | Free | Local install |
 | Stability API | Very Good | Fast | ~$0.02/img | API key only |
 | Replicate | Good | Medium | ~$0.01/img | API key only |
@@ -275,9 +393,10 @@ fi
 
 ## Fallback Strategy
 
-If primary provider fails:
+If configured provider fails:
 
-1. Check if API key environment variable is set
-2. If not set, fall back to prompt-only output
-3. If API call fails, capture error and fall back to prompt-only
-4. Always provide the generated prompt so user can use manually
+1. **SVG (default)**: Always available, no external dependencies
+2. **DALL-E 3 / Gemini**: Check if API key environment variable is set
+3. If API key not set, fall back to SVG generation
+4. If API call fails, capture error and fall back to SVG generation
+5. If SVG also fails, output prompt for manual use with Midjourney or other tools
