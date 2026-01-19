@@ -71,15 +71,17 @@ Generate social preview based on provider:
 
 **SVG (default)**:
 - Generate clean SVG using domain templates
-- Save to `.github/social-preview.svg`
-- If `--dark-mode`, generate dark variant
+- Save SVG to `.github/social-preview.svg`
+- **MANDATORY: Convert to JPG** (`.github/social-preview.jpg`)
+  - Dimensions: 1280x640, Quality: 90, Size: < 1MB
+- If `--dark-mode`, generate dark variants (SVG + JPG)
 
 **DALL-E 3 / Gemini**:
 - Generate optimized image prompt
 - Call API and save PNG
 - Save to `.github/social-preview.png`
 
-Output the generated file location (or prompt if manual).
+Output the generated file locations (SVG + JPG for SVG provider, or prompt if manual).
 
 #### Step 4c: README Enhancement
 
@@ -104,8 +106,9 @@ Display complete summary:
 
 ### Social Preview
 - Provider: svg (default)
-- Output: .github/social-preview.svg
-- Size: X KB
+- SVG Output: .github/social-preview.svg (X KB)
+- JPG Output: .github/social-preview.jpg (X KB) - **For GitHub upload**
+- Dimensions: 1280x640
 - [Generated/Pending]
 
 ### README Enhancement
@@ -145,9 +148,11 @@ If `--apply` flag or user confirms:
 
 | Provider | Social Preview | Infographic | Cost | Speed |
 |----------|---------------|-------------|------|-------|
-| **svg** (default) | SVG file | SVG file | Free | Instant |
+| **svg** (default) | SVG + JPG | SVG file | Free | Instant |
 | **dalle-3** | PNG image | PNG image | ~$0.16 | 10-30s |
 | **gemini** | PNG image | PNG image | ~$0.08 | 6-20s |
+
+**Note**: SVG provider always generates both `.svg` (editable) and `.jpg` (for GitHub upload).
 
 ## Example Usage
 
@@ -179,9 +184,10 @@ If `--apply` flag or user confirms:
 
 - Run without `--apply` first to review changes
 - SVG generation is free and instant (recommended default)
+- SVG always generates JPG for GitHub compatibility
 - Ensure `gh` CLI is authenticated for metadata updates
 - Configure `.claude/github-social.local.md` for custom settings
-- Social preview requires manual GitHub settings update after upload
+- Social preview requires selecting the **JPG** in GitHub settings
 - Use `--dark-mode` for repositories viewed in both themes
 
 ## Related Commands

@@ -2,6 +2,8 @@
 
 Example configuration for using SVG generation, the default and recommended provider.
 
+**Note**: SVG generation ALWAYS produces both `.svg` (editable source) and `.jpg` (for GitHub upload).
+
 ## Configuration
 
 ```yaml
@@ -54,8 +56,10 @@ dark_mode: both
 ```
 
 This creates:
-- `.github/social-preview.svg` (light)
-- `.github/social-preview-dark.svg` (dark)
+- `.github/social-preview.svg` (light SVG)
+- `.github/social-preview.jpg` (light JPG - for GitHub upload)
+- `.github/social-preview-dark.svg` (dark SVG)
+- `.github/social-preview-dark.jpg` (dark JPG)
 
 ## Expected Behavior
 
@@ -65,8 +69,14 @@ When running `/social-preview`:
 2. Domain is detected (DevTools, AI, Web, etc.)
 3. Appropriate color palette is selected
 4. SVG is generated using domain template
-5. File is saved to output path
-6. File location and size are reported
+5. SVG is saved to `.github/social-preview.svg`
+6. **JPG is generated** from SVG (1280x640, quality 90)
+7. JPG is saved to `.github/social-preview.jpg`
+8. Both file locations and sizes are reported
+
+**Output Files**:
+- `.github/social-preview.svg` - Editable source (10-50KB)
+- `.github/social-preview.jpg` - For GitHub upload (<1MB)
 
 ## Benefits of SVG
 
@@ -74,10 +84,12 @@ When running `/social-preview`:
 |---------|-------|
 | Cost | Free |
 | Speed | Instant |
-| File Size | 10-50KB |
-| Editability | Full (text-based) |
+| SVG File Size | 10-50KB |
+| JPG File Size | 50-200KB |
+| Editability | Full (SVG is text-based) |
 | Consistency | 100% predictable |
 | Dark Mode | Easy variants |
+| GitHub Compatible | JPG always generated |
 
 ## Domain Color Palettes
 

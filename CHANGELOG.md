@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **[social-preview]**: Mandatory JPG generation with SVG provider
+  - SVG generation now ALWAYS produces both `.svg` and `.jpg` files
+  - JPG is required for GitHub social preview (GitHub doesn't accept SVG)
+  - JPG specs: 1280x640, quality 90, < 1MB
+  - Both files uploaded when using `--upload` flag
+
 ### Fixed
 
 - **[setup]**: Updated setup wizard with SVG-first provider options

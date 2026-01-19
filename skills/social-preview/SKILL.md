@@ -20,8 +20,12 @@ All generated images must meet GitHub's social preview requirements:
 - **Minimum**: 640x320 pixels
 - **Recommended**: 1280x640 pixels (2:1 aspect ratio)
 - **Maximum file size**: 1MB
-- **Formats**: SVG (default), PNG, JPG, GIF
-- **Default output**: `.github/social-preview.svg`
+- **Formats**: JPG (required for GitHub), SVG (source file)
+- **Default outputs**:
+  - `.github/social-preview.svg` - Editable source file
+  - `.github/social-preview.jpg` - **Always generated** for GitHub upload
+
+**IMPORTANT**: GitHub's social preview setting requires a raster image (JPG/PNG). SVG generation MUST ALWAYS also produce a JPG file.
 
 ## Workflow
 
@@ -180,10 +184,22 @@ If `dark_mode: true` or `dark_mode: both`:
 - Adjust accent colors for dark backgrounds
 - If `both`: save as `[name].svg` and `[name]-dark.svg`
 
-**Save SVG**:
+**Save SVG and Convert to JPG**:
 1. Write SVG content to `output_path` (default: `.github/social-preview.svg`)
-2. Verify file size < 50KB (warn if larger)
-3. If `dark_mode: both`, generate and save dark variant
+2. Verify SVG file size < 50KB (warn if larger)
+3. **MANDATORY: Convert SVG to JPG**:
+   ```bash
+   # Convert SVG to JPG at 1280x640, quality 90
+   convert .github/social-preview.svg -resize 1280x640! -quality 90 -background white -flatten .github/social-preview.jpg
+   ```
+4. Verify JPG meets requirements:
+   - Dimensions: 1280x640
+   - File size: < 1MB (compress if needed)
+5. If `dark_mode: both`, generate dark variant SVG and JPG:
+   - `.github/social-preview-dark.svg`
+   - `.github/social-preview-dark.jpg`
+
+**Note**: The JPG is the file to upload to GitHub's social preview setting. The SVG is kept as an editable source.
 
 ---
 
@@ -286,21 +302,26 @@ Negative prompt: text, watermarks, realistic photos, cluttered, busy patterns
 
 ### Step 5: Verify Output
 
-**For SVG output**:
+**For SVG output** (always accompanied by JPG):
 1. Verify valid XML structure
-2. Check file size < 50KB (warn if 50-100KB, error if >100KB)
+2. Check SVG file size < 50KB (warn if 50-100KB, error if >100KB)
 3. Verify viewBox is 1280x640
+4. **Verify JPG was created**:
+   - File exists at `.github/social-preview.jpg`
+   - Dimensions are exactly 1280x640
+   - File size is under 1MB
+   - If exceeds 1MB, recompress with lower quality
 
-**For image output (PNG/JPG)**:
+**For AI-generated image output (PNG/JPG from DALL-E/Gemini)**:
 1. Verify file exists at output path
-2. Check dimensions meet requirements (≥640x320)
+2. Check dimensions meet requirements (≥640x320, recommended 1280x640)
 3. Check file size is under 1MB
 4. If exceeds 1MB, compress progressively
 
 **Report success with**:
-- File location
-- File size
-- Dimensions
+- SVG file location and size
+- **JPG file location and size** (for GitHub upload)
+- Dimensions (1280x640)
 - Provider used
 
 ### Step 6: Upload to Repository (Optional)
@@ -311,34 +332,45 @@ If `upload_to_repo: true` is configured (or `--upload` flag provided):
    - Parse `git remote get-url origin` to extract owner and repo name
    - Determine current branch with `git branch --show-current`
 
-2. **Prepare upload**:
-   - Read the generated file
+2. **Prepare upload** (upload BOTH files):
+   - Read the SVG source file and JPG output file
    - Encode content as base64 for GitHub API
 
-3. **Check for existing file**:
-   - Use GitHub API to check if output file exists
-   - If exists, retrieve the SHA for update operation
+3. **Check for existing files**:
+   - Use GitHub API to check if files exist
+   - If exist, retrieve the SHA for update operation
 
-4. **Upload via GitHub MCP tool**:
-   Use `mcp__github__create_or_update_file` with:
+4. **Upload via GitHub MCP tool** (both SVG and JPG):
    ```yaml
+   # Upload JPG (for GitHub social preview)
    owner: [detected owner]
    repo: [detected repo]
-   path: [output_path]
-   content: [base64 encoded content]
+   path: .github/social-preview.jpg
+   content: [base64 encoded JPG]
    message: "chore: update social preview image"
+   branch: [current or default branch]
+   sha: [existing file SHA if updating]
+   ```
+   ```yaml
+   # Upload SVG (editable source)
+   owner: [detected owner]
+   repo: [detected repo]
+   path: .github/social-preview.svg
+   content: [base64 encoded SVG]
+   message: "chore: update social preview source SVG"
    branch: [current or default branch]
    sha: [existing file SHA if updating]
    ```
 
 5. **Report upload status**:
-   - Confirm successful upload with commit URL
+   - Confirm successful upload with commit URLs
+   - **Remind user**: The JPG file is what should be selected in GitHub settings
    - Provide GitHub settings link for activating the social preview
 
 **Note**: To set as actual social preview, users must:
 1. Go to repository Settings → General
 2. Scroll to "Social preview"
-3. Click "Edit" and select the uploaded image
+3. Click "Edit" and select the **JPG** image (`.github/social-preview.jpg`)
 
 ## Color Palettes by Domain
 

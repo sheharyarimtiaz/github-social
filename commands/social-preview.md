@@ -17,7 +17,11 @@ The image must meet GitHub's social preview requirements:
 - Minimum: 640x320 pixels
 - Recommended: 1280x640 pixels (2:1 aspect ratio)
 - Maximum file size: 1MB
-- Output location: `.github/social-preview.svg` (default) or `.github/social-preview.png`
+- Output locations:
+  - `.github/social-preview.svg` - Editable source file
+  - `.github/social-preview.jpg` - **Always generated** (required for GitHub upload)
+
+**IMPORTANT**: GitHub requires a raster image (JPG/PNG) for social preview. SVG generation ALWAYS produces both SVG and JPG files.
 
 ## Process
 
@@ -58,8 +62,12 @@ Use the social-preview skill based on provider setting:
 1. Design visual concept based on project domain
 2. Generate clean SVG following domain templates
 3. Apply svg_style (minimal, geometric, illustrated)
-4. Save to output path (`.github/social-preview.svg`)
-5. If `dark_mode: both`, generate dark variant as well
+4. Save SVG to output path (`.github/social-preview.svg`)
+5. **MANDATORY: Convert SVG to JPG** (`.github/social-preview.jpg`)
+   - Dimensions: 1280x640
+   - Quality: 90
+   - File size: < 1MB
+6. If `dark_mode: both`, generate dark variants (SVG and JPG)
 
 **For DALL-E 3** (`--provider=dalle-3`):
 1. Verify `OPENAI_API_KEY` is available
@@ -88,12 +96,13 @@ If upload is requested:
 
 ### 5. Report Results
 
-**If SVG generated**:
-- Confirm file location and size
-- Display the SVG content (or path)
-- If `dark_mode: both`, report both variants
+**If SVG generated** (always includes JPG):
+- Confirm SVG file location and size
+- **Confirm JPG file location and size** (for GitHub upload)
+- Report dimensions (1280x640)
+- If `dark_mode: both`, report all variants (SVG + JPG for each)
 
-**If image generated (PNG)**:
+**If AI-generated image (DALL-E/Gemini)**:
 - Confirm file location
 - Report dimensions and file size
 - If uploaded: provide commit URL
@@ -107,10 +116,12 @@ If upload is requested:
 
 | Provider | Output | Cost | Speed | Quality |
 |----------|--------|------|-------|---------|
-| **svg** (default) | SVG file | Free | Instant | Clean, predictable |
+| **svg** (default) | SVG + JPG | Free | Instant | Clean, predictable |
 | **dalle-3** | PNG image | ~$0.08 | 5-15s | Artistic, varied |
 | **gemini** | PNG image | ~$0.039 | 3-10s | Good quality |
 | **manual** | Text prompt | Free | Instant | N/A |
+
+**Note**: SVG provider always generates both `.svg` (editable source) and `.jpg` (for GitHub upload).
 
 ## Example Usage
 
@@ -140,13 +151,15 @@ If upload is requested:
 ## GitHub Upload Instructions
 
 If `--upload` was used:
-- The image has been committed to the repository
-- Direct user to repository Settings → General → Social preview to select the uploaded image
+- Both SVG and JPG have been committed to the repository
+- Direct user to repository Settings → General → Social preview to select the **JPG** image
 
 If manual upload needed:
 1. Go to repository Settings
 2. Under "Social preview", click "Edit"
-3. Upload the generated image
+3. Upload the **JPG** file (`.github/social-preview.jpg`)
 4. Save changes
+
+**Important**: GitHub requires a raster image (JPG/PNG) for social preview. Upload the `.jpg` file, not the `.svg`.
 
 The image will appear when the repository is shared on social media platforms.
