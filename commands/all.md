@@ -2,7 +2,7 @@
 name: github-social:all
 description: Run all github-social skills in sequence - metadata, social preview, and README enhancement
 argument-hint: "[--apply] [--dry-run] [--provider svg|dalle-3|gemini|manual] [--skip-badges] [--skip-infographic] [--dark-mode]"
-allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "MCPSearch", "mcp__github__create_or_update_file"]
+allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "MCPSearch", "mcp__github__create_or_update_file", "Skill"]
 ---
 
 # Complete GitHub Social Enhancement
@@ -196,3 +196,22 @@ If `--apply` flag or user confirms:
 - `/repo-metadata` - Generate metadata only
 - `/readme-enhance` - Enhance README only
 - `/github-social:setup` - Configure plugin settings
+
+## Post-Enhancement: Capture to Mnemonic
+
+After completing all enhancements, capture the configuration:
+
+```bash
+/mnemonic:capture patterns "GitHub Social: {REPO} - full enhancement applied"
+```
+
+Include:
+- Provider used (svg, dalle-3, gemini)
+- Image dimensions and style
+- Badges added
+- Dark mode configuration
+
+This enables future recall for:
+- Consistent styling across repositories
+- Reusing successful configurations
+- Tracking enhancement history

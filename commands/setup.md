@@ -1,7 +1,7 @@
 ---
 name: github-social:setup
 description: Interactive setup wizard for github-social configuration
-allowed-tools: Read, Write, Bash, AskUserQuestion
+allowed-tools: Read, Write, Bash, AskUserQuestion, Skill
 ---
 
 Set up the github-social plugin configuration for this project.
@@ -161,3 +161,21 @@ Ask if user wants to generate a preview image now to test the configuration.
 - The `.local.md` suffix indicates this is a local/personal config
 - Consider adding `.claude/github-social.local.md` to `.gitignore` if it contains sensitive preferences
 - API keys should NEVER be stored in the config file - only environment variable names
+
+## Post-Setup: Capture to Mnemonic
+
+After completing setup, capture the configuration:
+
+```bash
+/mnemonic:capture decisions "GitHub Social Setup: {REPO} configuration"
+```
+
+Include:
+- Provider selected
+- SVG style preference
+- Dark mode setting
+- Upload preferences
+
+This enables future recall for:
+- Consistent setup across repositories
+- Default preferences for new projects

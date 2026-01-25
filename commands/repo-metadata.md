@@ -2,7 +2,7 @@
 name: repo-metadata
 description: Generate optimized repository description and topics for GitHub
 argument-hint: "[--apply]"
-allowed-tools: Read, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep, Bash, Skill
 ---
 
 Generate an engaging repository description and relevant topics for this GitHub repository.
@@ -32,3 +32,21 @@ Display generated metadata with:
 - Topic count
 - Manual update instructions
 - CLI commands for applying
+
+## Post-Generation: Capture to Mnemonic
+
+After generating or applying metadata, capture:
+
+```bash
+/mnemonic:capture patterns "Repo Metadata: {REPO} - description and topics"
+```
+
+Include:
+- Generated description
+- Topics selected
+- Character/topic counts
+
+This enables future recall for:
+- Consistent metadata patterns
+- Reusing effective descriptions
+- Topic selection patterns
